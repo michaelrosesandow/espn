@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import date
 
 url_head = 'http://games.espn.com/ffl/scoreboard?leagueId=427004&scoringPeriodId=%s'
-weeks = len(pd.date_range(date(2016,9,11), date.today(), freq='W'))+1
+weeks = len(pd.date_range(date(2018,9,7), date.today(), freq='W'))+1
 
 def get_scores(score_td, week_num):
     score = score_td.get_text()
@@ -31,6 +31,5 @@ for owner, week_num in scores.index:
     week_scores = scores.xs(week_num, level='week_num')
     expected_win = (float(week_scores.loc[owner, 'score']) > week_scores.loc[week_scores.index != owner, 'score']).mean()
     scores.loc[(owner,week_num), 'expected_win'] = expected_win
-    print('Owner: %s | Week: %s | E(w): %s' % (owner, week_num, expected_win))
-#
-#scores.sort_values(by='expected_win', ascending=False).to_csv('week_1_ew.csv')
+    
+scores[['win', 'expected_win']].reset_index().groupby('name').sum().sort_values(by=['win', 'expected_win'],ascending=[False, False]).to_csv('week_%s_ew.csv' % (weeks-1))
